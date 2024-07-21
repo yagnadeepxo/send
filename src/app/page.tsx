@@ -72,7 +72,7 @@ export default function GenerateUrl() {
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.heading}>Generate Your Donation URL</h1>
+      <h1 style={styles.heading}>Generate Your Donation Blink</h1>
       <form onSubmit={handleSubmit} style={styles.form}>
         <input
           type="text"
@@ -82,11 +82,11 @@ export default function GenerateUrl() {
           required
           style={styles.input}
         />
-        <button type="submit" style={styles.button}>Generate URL</button>
+        <button type="submit" style={styles.button}>Generate Blink</button>
       </form>
       {generatedUrl && (
         <div style={styles.resultContainer}>
-          <p style={styles.resultText}>Your custom donation URL:</p>
+          <p style={styles.resultText}>Your custom Blink:</p>
           <a href={generatedUrl} target="_blank" rel="noopener noreferrer" style={styles.link}>
             {generatedUrl}
           </a>
