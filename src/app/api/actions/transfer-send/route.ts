@@ -36,15 +36,15 @@ import {
           actions: [
             {
               label: "Send 10000 SEND",
-              href: `${baseHref}&amount=${"1"}`,
+              href: `${baseHref}&amount=${"10000"}`,
             },
             {
               label: "Send 50000 SEND",
-              href: `${baseHref}&amount=${"5"}`,
+              href: `${baseHref}&amount=${"50000"}`,
             },
             {
               label: "Send 100000 SEND",
-              href: `${baseHref}&amount=${"10"}`,
+              href: `${baseHref}&amount=${"100000"}`,
             },
             {
               label: "Send SEND",
