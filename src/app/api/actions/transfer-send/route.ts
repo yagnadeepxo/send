@@ -19,31 +19,31 @@ import {
   
   export const GET = async (req: Request) => {
     try {
-      const requestUrl = new URL(req.url);
-      const { toPubkey } = validatedQueryParams(requestUrl);
+      const { searchParams } = new URL(req.url);
+      const toPubkey = searchParams.get('to');
   
-      const baseHref = new URL(
-        `/api/actions/transfer-send?to=${toPubkey.toBase58()}`,
-        requestUrl.origin,
-      ).toString();
+      if (!toPubkey) {
+        return Response.json({ error: 'Missing recipient public key' }, { status: 400 });
+      }
   
+      const baseHref = `/api/actions/transfer-send?to=${toPubkey}`;
       const payload: ActionGetResponse = {
-        title: "Actions Example - Transfer SEND Token",
-        icon: new URL("/send.jpeg", requestUrl.origin).toString(),
-        description: "Transfer SEND tokens to another Solana wallet",
+        title: "Donate SEND",
+        icon: new URL("/send.jpeg", req.url).toString(),
+        description: "Transfer SEND tokens to your favorite creator",
         label: "Transfer",
         links: {
           actions: [
             {
-              label: "Send 1 SEND",
+              label: "Send 10000 SEND",
               href: `${baseHref}&amount=${"1"}`,
             },
             {
-              label: "Send 5 SEND",
+              label: "Send 50000 SEND",
               href: `${baseHref}&amount=${"5"}`,
             },
             {
-              label: "Send 10 SEND",
+              label: "Send 100000 SEND",
               href: `${baseHref}&amount=${"10"}`,
             },
             {
@@ -74,50 +74,47 @@ import {
       });
     }
   };
+
+  export const OPTIONS = GET
   
   export const POST = async (req: Request) => {
     try {
-      const requestUrl = new URL(req.url);
-      const { amount, toPubkey } = validatedQueryParams(requestUrl);
-  
-      const body: ActionPostRequest = await req.json();
-  
-      let account: PublicKey;
-      try {
-        account = new PublicKey(body.account);
-      } catch (err) {
-        return new Response('Invalid "account" provided', {
+      const { searchParams } = new URL(req.url);
+      const account = new PublicKey(searchParams.get('to') || '');
+      const amount = parseFloat(searchParams.get('amount') || '0');
+
+      if (!account || isNaN(amount) || amount <= 0) {
+        return new Response('Invalid "to" or "amount" parameter', {
           status: 400,
           headers: ACTIONS_CORS_HEADERS,
         });
       }
-  
+
+      const body: ActionPostRequest = await req.json();
+      const sender_pubkey = new PublicKey(body.account);
+      
       const connection = new Connection(clusterApiUrl("mainnet-beta"));
   
-      // Get the associated token accounts
-      const fromTokenAccount = await getAssociatedTokenAddress(SEND_TOKEN_MINT, account);
-      const toTokenAccount = await getAssociatedTokenAddress(SEND_TOKEN_MINT, toPubkey);
-  
-      // Fetch token mint info to get decimals
-      const mintInfo = await connection.getParsedAccountInfo(SEND_TOKEN_MINT);
-      const decimals = (mintInfo.value?.data as any).parsed.info.decimals;
-  
+      
+      const fromTokenAccount = await getAssociatedTokenAddress(SEND_TOKEN_MINT, sender_pubkey, false);
+      const toTokenAccount = await getAssociatedTokenAddress(SEND_TOKEN_MINT, account, false);
+    
       const transaction = new Transaction().add(
         createTransferInstruction(
           fromTokenAccount,
           toTokenAccount,
-          account,
-          amount * Math.pow(10, decimals)
+          sender_pubkey,
+          amount * Math.pow(10, 6)
         )
       );
   
-      transaction.feePayer = account;
+      transaction.feePayer = sender_pubkey;
       transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
   
       const payload: ActionPostResponse = await createPostResponse({
         fields: {
           transaction,
-          message: `Send ${amount} SEND to ${toPubkey.toBase58()}`,
+          message: `Sent ${amount} SEND to ${account.toBase58()}`,
         },
       });
   
