@@ -29,7 +29,7 @@ import {
       const baseHref = `/api/actions/transfer-send?to=${toPubkey}`;
       const payload: ActionGetResponse = {
         title: "Donate SEND",
-        icon: new URL("/send.jpeg", req.url).toString(),
+        icon: new URL("/hv.jpeg", req.url).toString(),
         description: "Transfer SEND tokens to your favorite creator",
         label: "Transfer",
         links: {
