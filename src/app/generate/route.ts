@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     }
 
     // Generate the custom URL
-    const customUrl = `${'sendsend.vercel.app'}/api/actions/transfer-send?to=${publicKey}`;
+    const customUrl = `${'https://sendsend.vercel.app'}/api/actions/transfer-send?to=${publicKey}`;
 
     return NextResponse.json({ url: customUrl });
   } catch (error) {
